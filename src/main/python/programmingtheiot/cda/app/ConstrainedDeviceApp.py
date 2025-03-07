@@ -15,6 +15,7 @@ import logging
 from time import sleep
 
 logging.basicConfig(format = '%(asctime)s:%(name)s:%(levelname)s:%(message)s', level = logging.DEBUG)
+
 from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
 
 class ConstrainedDeviceApp():
