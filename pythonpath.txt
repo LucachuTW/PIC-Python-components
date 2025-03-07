@@ -1,0 +1,1 @@
+export PYTHONPATH=/home/lucas/Documents/Universidad/Practicas/PIC/PIC-Python-components/src/main/python:/home/lucas/Documents/Universidad/Practicas/PIC/PIC-Python-components/src/test/python
