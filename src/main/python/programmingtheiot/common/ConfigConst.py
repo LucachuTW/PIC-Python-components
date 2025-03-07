@@ -197,6 +197,7 @@ CDA_SYSTEM_PERF_MSG_RESOURCE          = PRODUCT_NAME + '/' + CONSTRAINED_DEVICE 
 
 # NOTE: You will need to update this!!
 DEFAULT_CONFIG_FILE_NAME = '/home/lucas/Documents/Universidad/Practicas/PIC/PIC-Python-components/config/PiotConfig.props'
+
 DEFAULT_CRED_FILE_NAME   = '../../../../../../../cred/PiotCred.props'
 
 TEST_GDA_DATA_PATH_KEY = 'testGdaDataPath'
