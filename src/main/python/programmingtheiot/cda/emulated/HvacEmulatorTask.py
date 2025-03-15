@@ -25,11 +25,33 @@ class HvacEmulatorTask(BaseActuatorSimTask):
 	"""
 
 	def __init__(self):
-		pass
+		super().__init__(
+			name=ConfigConst.HVAC_ACTUATOR_NAME,
+			typeID=ConfigConst.HVAC_ACTUATOR_TYPE,
+			simpleName="HVAC"
+		)
 
 	def _activateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
-		pass
+		if self.sh.screen:
+			msg = f"{self.getSimpleName()} ON: {val}C"
+			self.sh.screen.scroll_text(msg)
+			return 0
+		else:
+			logging.warning("No SenseHAT LED screen instance to write.")
+			return -1
 
 	def _deactivateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
-		pass
+		if self.sh.screen:
+			msg = f"{self.getSimpleName()} OFF"
+			self.sh.screen.scroll_text(msg)
+
+			# optional sleep (5 seconds) for message to scroll before clearing display
+			sleep(5)
+
+			self.sh.screen.clear()
+			return 0
+		else:
+			logging.warning("No SenseHAT LED screen instance to clear / close.")
+			return -1
+
 	

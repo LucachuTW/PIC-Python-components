@@ -8,22 +8,31 @@
 #
 
 from programmingtheiot.data.SensorData import SensorData
-
 import programmingtheiot.common.ConfigConst as ConfigConst
-
 from programmingtheiot.common.ConfigUtil import ConfigUtil
 from programmingtheiot.cda.sim.BaseSensorSimTask import BaseSensorSimTask
 
 from pisense import SenseHAT
 
 class PressureSensorEmulatorTask(BaseSensorSimTask):
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
+    def __init__(self):
+        super().__init__(
+            name=ConfigConst.PRESSURE_SENSOR_NAME,
+            typeID=ConfigConst.PRESSURE_SENSOR_TYPE
+        )
 
-	def __init__(self, dataSet = None):
-		pass
-	
-	def generateTelemetry(self) -> SensorData:
-		pass
+        enable_emulation = ConfigUtil().getBoolean(
+            ConfigConst.CONSTRAINED_DEVICE, ConfigConst.ENABLE_EMULATOR_KEY
+        )
+
+        self.sh = SenseHAT(emulate=enable_emulation)
+
+    def generateTelemetry(self) -> SensorData:
+        sensor_data = SensorData(name=self.getName(), typeID=self.getTypeID())
+        sensor_val = self.sh.environ.pressure
+
+        sensor_data.setValue(sensor_val)
+        self.latestSensorData = sensor_data
+
+        return sensor_data
+
