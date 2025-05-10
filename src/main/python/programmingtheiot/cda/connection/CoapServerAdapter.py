@@ -32,8 +32,32 @@ class CoapServerAdapter():
 	"""
 	
 	def __init__(self, dataMsgListener = None):
+		self.config = ConfigUtil()
+		self.dataMsgListener = dataMsgListener
+		self.enableConfirmedMsgs = False
+
+		# NOTE: host may need to be the actual IP address - see Kanban board notes
+		self.host = self.config.getProperty(ConfigConst.COAP_GATEWAY_SERVICE, ConfigConst.HOST_KEY, ConfigConst.DEFAULT_HOST)
+		self.port = self.config.getInteger(ConfigConst.COAP_GATEWAY_SERVICE, ConfigConst.PORT_KEY, ConfigConst.DEFAULT_COAP_PORT)
+
+		self.coapServer     = None
+		self.coapServerTask = None
+
+		# NOTE: the self.rootResource = None only used for aiocoap
+		self.rootResource   = None
+
+		# NOTE: the self.listenTimeout = 30 only used for CoAPthon3
+		# self.listenTimeout = 30
+
+		logging.info("CoAP server configured for host and port: coap://%s:%s", self.host, str(self.port))
+			
+
+	def _initServer(self):
 		pass
-		
+
+	def _runServer(self):
+		pass
+
 	def addResource(self, resourcePath: ResourceNameEnum = None, endName: str = None, resource = None):
 		pass
 				
