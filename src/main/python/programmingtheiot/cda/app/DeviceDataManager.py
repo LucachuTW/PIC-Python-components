@@ -79,6 +79,10 @@ class DeviceDataManager(IDataMessageListener):
 			self.sensorAdapterMgr = SensorAdapterManager()
 			self.sensorAdapterMgr.setDataMessageListener(self)
 			logging.info("Local sensor tracking is enabled.")
+			
+			# Initialize actuator adapter manager
+			self.actuatorAdapterMgr = ActuatorAdapterManager()
+			logging.info("Actuator adapter manager initialized.")
 
 
 		self.handleTempChangeOnDevice = self.configUtil.getBoolean(

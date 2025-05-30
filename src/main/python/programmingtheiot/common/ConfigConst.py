@@ -298,3 +298,13 @@ MAX_MOTION_FRAMES_BEFORE_ACTION_KEY = 'maxMotionFramesBeforeAction'
 MAX_CACHED_FRAMES_KEY      = 'maxCachedFrames'
 STORE_INTERIM_FRAMES_KEY   = 'storeInterimFrames'
 INCLUDE_RAW_IMAGE_DATA_IN_MSG_KEY = 'includeRawImageDataInMsg'
+
+# Sensor y tipo para luminosidad
+LUMINOSITY_SENSOR_NAME = 'LuminositySensor'
+LUMINOSITY_SENSOR_TYPE = 1014
+LUMINOSITY_SIM_FLOOR_KEY = 'luminositySimFloor'
+LUMINOSITY_SIM_CEILING_KEY = 'luminositySimCeiling'
+
+# Actuador y tipo para display LED
+LED_ACTUATOR_NAME = 'LedDisplayActuator'
+LED_DISPLAY_ACTUATOR_TYPE = 2001

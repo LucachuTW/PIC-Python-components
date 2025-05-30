@@ -22,6 +22,7 @@ from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataGenerator
 from programmingtheiot.cda.sim.HumiditySensorSimTask import HumiditySensorSimTask
 from programmingtheiot.cda.sim.TemperatureSensorSimTask import TemperatureSensorSimTask
 from programmingtheiot.cda.sim.PressureSensorSimTask import PressureSensorSimTask
+from programmingtheiot.cda.sim.LuminositySensorSimTask import LuminositySensorSimTask
 
 class SensorAdapterManager(object):
 	"""
@@ -57,6 +58,7 @@ class SensorAdapterManager(object):
 		self.humidityAdapter = None
 		self.pressureAdapter = None
 		self.tempAdapter     = None
+		self.luminosityAdapter = None
 
 		# see PIOT-CDA-03-006 description for thoughts on the next line of code
 		self._initEnvironmentalSensorTasks()
@@ -83,6 +85,13 @@ class SensorAdapterManager(object):
 			section=ConfigConst.CONSTRAINED_DEVICE, key=ConfigConst.TEMP_SIM_CEILING_KEY, defaultVal=SensorDataGenerator.HI_NORMAL_INDOOR_TEMP
 		)
 
+		luminosityFloor = self.configUtil.getFloat(
+			section=ConfigConst.CONSTRAINED_DEVICE, key=getattr(ConfigConst, 'LUMINOSITY_SIM_FLOOR_KEY', 'luminositySimFloor'), defaultVal=SensorDataGenerator.DEFAULT_MIN_VALUE
+		)
+		luminosityCeiling = self.configUtil.getFloat(
+			section=ConfigConst.CONSTRAINED_DEVICE, key=getattr(ConfigConst, 'LUMINOSITY_SIM_CEILING_KEY', 'luminositySimCeiling'), defaultVal=SensorDataGenerator.DEFAULT_MAX_VALUE
+		)
+
 		if not self.useEmulator:
 			self.dataGenerator = SensorDataGenerator()
 
@@ -95,10 +104,14 @@ class SensorAdapterManager(object):
 			tempData = self.dataGenerator.generateDailyIndoorTemperatureDataSet(
 				minValue=tempFloor, maxValue=tempCeiling, useSeconds=False
 			)
+			luminosityData = self.dataGenerator.generateDailySensorDataSet(
+				curveType=SensorDataGenerator.FULL_WAVE, noiseLevel=SensorDataGenerator.DEFAULT_NOISE, minValue=luminosityFloor, maxValue=luminosityCeiling, startHour=0, endHour=24, useSeconds=False
+			)
 
 			self.humidityAdapter = HumiditySensorSimTask(dataSet=humidityData)
 			self.pressureAdapter = PressureSensorSimTask(dataSet=pressureData)
 			self.tempAdapter = TemperatureSensorSimTask(dataSet=tempData)
+			self.luminosityAdapter = LuminositySensorSimTask(dataSet=luminosityData)
 
 		else:
 			heModule = import_module('programmingtheiot.cda.emulated.HumiditySensorEmulatorTask')
@@ -113,12 +126,20 @@ class SensorAdapterManager(object):
 			teClazz = getattr(teModule, 'TemperatureSensorEmulatorTask')
 			self.tempAdapter = teClazz()
 
+			try:
+				leModule = import_module('programmingtheiot.cda.emulated.LuminositySensorEmulatorTask')
+				leClazz = getattr(leModule, 'LuminositySensorEmulatorTask')
+				self.luminosityAdapter = leClazz()
+			except Exception:
+				self.luminosityAdapter = None
+
 
 
 	def handleTelemetry(self):
 		humidityData = self.humidityAdapter.generateTelemetry()
 		pressureData = self.pressureAdapter.generateTelemetry()
 		tempData     = self.tempAdapter.generateTelemetry()
+		luminosityData = self.luminosityAdapter.generateTelemetry() if self.luminosityAdapter else None
 
 		humidityData.setLocationID(self.locationID)
 		pressureData.setLocationID(self.locationID)
@@ -133,6 +154,12 @@ class SensorAdapterManager(object):
 			self.dataMsgListener.handleSensorMessage(pressureData)
 			self.dataMsgListener.handleSensorMessage(tempData)
 		
+		if luminosityData:
+			luminosityData.setLocationID(self.locationID)
+			logging.debug('Generated luminosity data: ' + str(luminosityData))
+			if self.dataMsgListener:
+				self.dataMsgListener.handleSensorMessage(luminosityData)
+
 	def setDataMessageListener(self, listener: IDataMessageListener):
 		if listener:
 			self.dataMsgListener = listener

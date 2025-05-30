@@ -21,6 +21,7 @@ from programmingtheiot.data.ActuatorData import ActuatorData
 
 from programmingtheiot.cda.sim.HvacActuatorSimTask import HvacActuatorSimTask
 from programmingtheiot.cda.sim.HumidifierActuatorSimTask import HumidifierActuatorSimTask
+from programmingtheiot.cda.sim.LedDisplayActuatorSimTask import LedDisplayActuatorSimTask
 
 class ActuatorAdapterManager(object):
 	"""
@@ -66,6 +67,9 @@ class ActuatorAdapterManager(object):
 
 			# create the HVAC actuator
 			self.hvacActuator = HvacActuatorSimTask()
+
+			# create the LED display actuator
+			self.ledDisplayActuator = LedDisplayActuatorSimTask()
 		else:
 			hueModule = import_module('programmingtheiot.cda.emulated.HumidifierEmulatorTask', 'HumidifierEmulatorTask')
 			hueClazz = getattr(hueModule, 'HumidifierEmulatorTask')
@@ -77,9 +81,12 @@ class ActuatorAdapterManager(object):
 			self.hvacActuator = hveClazz()
 
 			# create the LED display actuator emulator
-			leDisplayModule = import_module('programmingtheiot.cda.emulated.LedDisplayEmulatorTask', 'LedDisplayEmulatorTask')
-			leClazz = getattr(leDisplayModule, 'LedDisplayEmulatorTask')
-			self.ledDisplayActuator = leClazz()
+			try:
+				leDisplayModule = import_module('programmingtheiot.cda.emulated.LedDisplayEmulatorTask', 'LedDisplayEmulatorTask')
+				leClazz = getattr(leDisplayModule, 'LedDisplayEmulatorTask')
+				self.ledDisplayActuator = leClazz()
+			except Exception:
+				self.ledDisplayActuator = None
 
 			
 	def sendActuatorCommand(self, data: ActuatorData) -> ActuatorData:

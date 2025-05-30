@@ -54,10 +54,12 @@ testEmptyApp     = False
 # configurable limits for sensor simulation
 humiditySimFloor   =   35.0
 humiditySimCeiling =   45.0
-pressureSimFloor   =  990.0
+pressureSimFloor   =   990.0
 pressureSimCeiling = 1010.0
 tempSimFloor       =   15.0
 tempSimCeiling     =   25.0
+luminositySimFloor =    0.0
+luminositySimCeiling = 100.0
 
 # configurable limits for actuator triggers
 handleTempChangeOnDevice = True

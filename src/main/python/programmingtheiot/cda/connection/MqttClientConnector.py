@@ -9,6 +9,7 @@
 
 import logging
 import paho.mqtt.client as mqttClient
+import ssl
 
 import programmingtheiot.common.ConfigConst as ConfigConst
 
@@ -81,6 +82,10 @@ class MqttClientConnector(IPubSubClient):
 
 		start_message = f"\n\tMQTT Client ID: {self.clientID}\n\tMQTT Broker Host: {self.host}\n\tMQTT Broker Port: {self.port}\n\tMQTT Keep Alive: {self.keepAlive}"
 		logging.info(start_message)
+
+		logging.info("[TEST] Publicando mensaje de prueba al conectar...")
+		self.connectClient()
+		self.publishMessage(resource=ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, msg="Mensaje de prueba MQTT", qos=1)
 
 	def connectClient(self, cleanSession: bool = True) -> bool:
 		if not self.mqttClient:
@@ -208,11 +213,24 @@ class MqttClientConnector(IPubSubClient):
 		if qos < 0 or qos > 2:
 			qos = ConfigConst.DEFAULT_QOS
 
-		# publish message, and wait for publish to complete before returning
-		msgInfo = self.mqttClient.publish(topic = resource.value, payload = msg, qos = qos)
-		#msgInfo.wait_for_publish()
+		# check if client is connected
+		if not self.mqttClient or not self.mqttClient.is_connected():
+			logging.error('MQTT client is not connected. Cannot publish message.')
+			return False
 
-		return True
+		# publish message, and wait for publish to complete before returning
+		try:
+			msgInfo = self.mqttClient.publish(topic=resource.value, payload=msg, qos=qos)
+			msgInfo.wait_for_publish()
+			if msgInfo.rc == 0:
+				logging.info(f"Message published to {resource.value}")
+				return True
+			else:
+				logging.error(f"Failed to publish message to {resource.value}, rc={msgInfo.rc}")
+				return False
+		except Exception as e:
+			logging.error(f"Exception during publish: {e}")
+			return False
 	
 	def subscribeToTopic(self, resource: ResourceNameEnum = None, callback = None, qos: int = ConfigConst.DEFAULT_QOS) -> bool:
 		# check validity of resource (topic)
